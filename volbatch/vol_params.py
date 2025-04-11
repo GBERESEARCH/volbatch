@@ -108,12 +108,12 @@ vol_params = {
             'longName': 'iShares MSCI Brazil ETF',
             'divYield':	0.0884
             },
-        'F':
-            {
-            'ticker': 'F',
-            'longName': 'Ford Motor Company',
-            'divYield':	0.0859
-            },
+        # 'F':
+        #     {
+        #     'ticker': 'F',
+        #     'longName': 'Ford Motor Company',
+        #     'divYield':	0.0859
+        #     },
         'FXI':
             {
             'ticker': 'FXI',
@@ -210,12 +210,12 @@ vol_params = {
             'longName': 'Micron Technology, Inc.',
             'divYield':	0.0071
             },
-        'NDX':
-            {
-            'ticker': '^NDX',
-            'longName': 'Nasdaq 100',
-            'divYield':	0.0098
-            },
+        # 'NDX':
+        #     {
+        #     'ticker': '^NDX',
+        #     'longName': 'Nasdaq 100',
+        #     'divYield':	0.0098
+        #     },
         'NFLX':
             {
             'ticker': 'NFLX',
@@ -366,12 +366,12 @@ vol_params = {
             'longName': 'Walmart Inc.',
             'divYield':	0.0089
             },
-        'WOLF':
-            {
-            'ticker': 'WOLF',
-            'longName': 'Wolfspeed, Inc.',
-            'divYield':	0.0
-            },
+        # 'WOLF':
+        #     {
+        #     'ticker': 'WOLF',
+        #     'longName': 'Wolfspeed, Inc.',
+        #     'divYield':	0.0
+        #     },
         'XBI':
             {
             'ticker': 'XBI',

@@ -91,12 +91,14 @@ class VolBatch():
 
     def process_single_ticker(self):
         """Process a single ticker specified in self.params['ticker']."""
+        raw_ticker = self.params['ticker']
+        clean_ticker = raw_ticker.replace('^', '')
         try:
             if self.params['divs']:
                 self.get_div_yields()
                 vol_surface = self.get_vol_data_with_divs(
                     ticker=self.params['ticker'], 
-                    div_yield=self.params['div_map'][self.params['ticker']], 
+                    div_yield=self.params['div_map'][clean_ticker], 
                     interest_rate=self.params['interest_rate'],
                     start_date=self.params['start_date'],
                     skew_tenors=self.params['skew_tenors']
@@ -117,12 +119,13 @@ class VolBatch():
             voldata = json.loads(jsonstring)
             self.voldata = voldata
 
-            filename = self.params['ticker'] + '.json'
+            filename = clean_ticker + '.json'
             if self.params['save']:
                 self.save_vol_data(filename)
 
         except Exception as e:
             print(f"Error processing ticker {self.params['ticker']}: {str(e)}")
+
 
     def save_vol_data(self, filename=None):
         """
