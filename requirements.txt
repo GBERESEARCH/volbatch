@@ -1,0 +1,5 @@
+numpy>=2.2.3
+pandas>=2.2.3
+requests>=2.32.3
+volvisdata>=1.0.9
+voldiscount>=0.0.2
