@@ -37,7 +37,8 @@ class VolBatchData:
         args = {
             'ticker': ticker,
             'filename': None,
-            'underlying_price': None
+            'underlying_price': None,
+            'reference_date': start_date
         }
         vol = VolDiscount(**args)
         discount_df = vol.get_data_with_rates()
