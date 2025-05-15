@@ -5,6 +5,7 @@ vol_params = {
     'interest_rate': 0.0454,
     'timeout_seconds': 120,
     'discount_type': 'smooth',
+    'trim_dict': True,
     'tickerMap':{
         'AAPL':
             {

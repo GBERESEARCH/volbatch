@@ -35,43 +35,68 @@ class VolBatch(VolBatchData, VolBatchTransform):
         """
         Process a batch of tickers and save the results to JSON files.
         """
-        for key, value in self.params['tickerMap'].items():
-            print(f"Processing ticker: {key}")
+        for ticker, ticker_dict in self.params['tickerMap'].items():
+            print(f"Processing ticker: {ticker}")
             try:
                 if self.params['divs']:
                     # Use the static method but store the result back to self.params
                     self.params = self.get_div_yields(self.params)
                     vol_surface = self.get_vol_data_with_divs(
-                        ticker=value['ticker'],
-                        div_yield=self.params['div_map'][key],
+                        ticker=ticker_dict['ticker'],
+                        div_yield=self.params['div_map'][ticker],
                         interest_rate=self.params['interest_rate'],
                         start_date=self.params['start_date'],
                         skew_tenors=self.params['skew_tenors']
                     )
                 else:
                     vol_surface = self.get_vol_data(
-                        ticker=value['ticker'],
+                        ticker=ticker_dict['ticker'],
                         start_date=self.params['start_date'],
                         discount_type=self.params['discount_type'],
                         skew_tenors=self.params['skew_tenors']
                     )
 
                 if vol_surface is None:
-                    print(f"Processing for {key} timed out or failed, skipping to next ticker")
+                    print(f"Processing for {ticker} timed out or failed, skipping to next ticker")
                     continue
+
+                if self.params['trim_dict']:
+                    for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
+                        del vol_surface['data_dict'][surface_type]
+
+                    del vol_surface['data_dict']['line']['params']
+
+                    keys_to_keep = [
+                        'x',
+                        'y',
+                        'z',
+                        'contour_x_size',
+                        'contour_x_start',
+                        'contour_x_stop',
+                        'contour_y_size',
+                        'contour_y_start',
+                        'contour_y_stop',
+                        'contour_z_size',
+                        'contour_z_start',
+                        'contour_z_stop'
+                        ]
+                    for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
+                        keys_to_delete = set(vol_surface['data_dict'][surface_type]['params'].keys()) - set(keys_to_keep)
+                        for param_key in keys_to_delete:
+                            del vol_surface['data_dict'][surface_type]['params'][param_key]        
 
                 jsonstring = json.dumps(vol_surface, cls=NanConverter)
                 voldata = json.loads(jsonstring)
-                filename = key + '.json'
+                filename = ticker + '.json'
 
                 if self.params['save']:
                     with open(filename, "w") as fp:
                         json.dump(voldata, fp, cls=NanConverter)
 
-                print(f"Successfully processed ticker: {key}")
+                print(f"Successfully processed ticker: {ticker}")
 
             except Exception as e:
-                print(f"Error processing ticker {key}: {str(e)}")
+                print(f"Error processing ticker {ticker}: {str(e)}")
 
             # Random pause between tickers to avoid rate limiting
             sleep_time = random.randint(6, 15)
