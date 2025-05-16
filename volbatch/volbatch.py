@@ -132,6 +132,31 @@ class VolBatch(VolBatchData, VolBatchTransform):
             if vol_surface is None:
                 print(f"Processing for {self.params['ticker']} timed out or failed")
                 return
+            
+            if self.params['trim_dict']:
+                    for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
+                        del vol_surface['data_dict'][surface_type]
+
+                    del vol_surface['data_dict']['line']['params']
+
+                    keys_to_keep = [
+                        'x',
+                        'y',
+                        'z',
+                        'contour_x_size',
+                        'contour_x_start',
+                        'contour_x_stop',
+                        'contour_y_size',
+                        'contour_y_start',
+                        'contour_y_stop',
+                        'contour_z_size',
+                        'contour_z_start',
+                        'contour_z_stop'
+                        ]
+                    for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
+                        keys_to_delete = set(vol_surface['data_dict'][surface_type]['params'].keys()) - set(keys_to_keep)
+                        for param_key in keys_to_delete:
+                            del vol_surface['data_dict'][surface_type]['params'][param_key]        
 
             jsonstring = json.dumps(vol_surface, cls=NanConverter)
             voldata = json.loads(jsonstring)
