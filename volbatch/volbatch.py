@@ -127,7 +127,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                     ticker=self.params['ticker'],
                     start_date=self.params['start_date'],
                     discount_type=self.params['discount_type'],
-                    skew_tenors=self.params['skew_tenors']
+                    skew_tenors=self.params['skew_tenors'],
+                    pair_selection_method=self.params['pair_selection_method']
                 )
 
             if vol_surface is None:
