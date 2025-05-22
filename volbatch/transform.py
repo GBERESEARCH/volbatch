@@ -108,4 +108,3 @@ class VolBatchTransform:
         skew_data['start_date'] = imp.params['start_date']
 
         return skew_data
-    

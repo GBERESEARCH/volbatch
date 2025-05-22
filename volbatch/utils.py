@@ -17,6 +17,8 @@ import pandas as pd
 import requests
 from volbatch.vol_params import vol_params
 
+# pylint: disable=W0237, R0911
+
 TIMEOUT_SECONDS = vol_params.get('timeout_seconds')
 
 T = TypeVar('T')
@@ -136,7 +138,7 @@ class NanConverter(JSONEncoder):
     This encoder applies the nan_to_none conversion before encoding JSON to
     ensure all NaN values are properly handled.
     """
-    def encode(self, obj: Any, *args: Any, **kwargs: Any) -> str:
+    def encode(self, obj: Any) -> str:
         """
         Apply nan2None processing before encoding to JSON.
 
@@ -154,7 +156,7 @@ class NanConverter(JSONEncoder):
         str
             JSON-encoded string with NaN values converted to null
         """
-        return super().encode(nan_to_none(obj), *args, **kwargs)
+        return super().encode(nan_to_none(obj))
 
 
 def round_floats(obj: Any) -> Any:
@@ -181,11 +183,6 @@ def round_floats(obj: Any) -> Any:
     if isinstance(obj, (list, tuple)):
         return [round_floats(x) for x in obj]
     return obj
-
-
-class TimeoutError(Exception):
-    """Exception raised when a function execution exceeds the time limit."""
-    pass
 
 
 def timeout(func: Callable[..., R]) -> Callable[..., Optional[R]]:
@@ -218,7 +215,8 @@ def timeout(func: Callable[..., R]) -> Callable[..., Optional[R]]:
             try:
                 result[0] = func(*args, **kwargs)
                 completed[0] = True
-            except Exception as e:
+            except (ValueError, ZeroDivisionError, OverflowError,
+                TypeError, RuntimeWarning) as e:
                 exception[0] = e
 
         thread = threading.Thread(target=worker)
@@ -229,12 +227,11 @@ def timeout(func: Callable[..., R]) -> Callable[..., Optional[R]]:
         thread.join(TIMEOUT_SECONDS)
 
         # If function raised an exception, re-raise it
-        if exception[0] is not None:
-            if isinstance(exception[0], Exception):
-                raise exception[0]
-            else:
-                # This should never happen, but type checking may flag it
-                raise RuntimeError(f"Unknown error in {func.__name__}")
+        exc = exception[0]
+        if exc is not None:
+            if isinstance(exc, Exception):
+                raise exc
+            raise RuntimeError(f"Unknown error in {func.__name__}")
 
         # If thread is still running after timeout
         if not completed[0]:

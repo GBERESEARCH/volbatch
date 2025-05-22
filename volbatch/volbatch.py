@@ -82,21 +82,24 @@ class VolBatch(VolBatchData, VolBatchTransform):
                         'contour_z_stop'
                         ]
                     for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
-                        keys_to_delete = set(vol_surface['data_dict'][surface_type]['params'].keys()) - set(keys_to_keep)
+                        keys_to_delete = set(
+                            vol_surface['data_dict'][surface_type][
+                                'params'].keys()) - set(keys_to_keep)
                         for param_key in keys_to_delete:
-                            del vol_surface['data_dict'][surface_type]['params'][param_key]        
+                            del vol_surface['data_dict'][surface_type]['params'][param_key]
 
                 jsonstring = json.dumps(vol_surface, cls=NanConverter)
                 voldata = json.loads(jsonstring)
                 filename = ticker + '.json'
 
                 if self.params['save']:
-                    with open(filename, "w") as fp:
+                    with open(filename, "w", encoding="utf-8") as fp:
                         json.dump(voldata, fp, cls=NanConverter)
 
                 print(f"Successfully processed ticker: {ticker}")
 
-            except Exception as e:
+            except (ValueError, ZeroDivisionError, OverflowError,
+                    RuntimeWarning) as e:
                 print(f"Error processing ticker {ticker}: {str(e)}")
 
             # Random pause between tickers to avoid rate limiting
@@ -134,31 +137,33 @@ class VolBatch(VolBatchData, VolBatchTransform):
             if vol_surface is None:
                 print(f"Processing for {self.params['ticker']} timed out or failed")
                 return
-            
+
             if self.params['trim_dict']:
-                    for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
-                        del vol_surface['data_dict'][surface_type]
+                for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
+                    del vol_surface['data_dict'][surface_type]
 
-                    del vol_surface['data_dict']['line']['params']
+                del vol_surface['data_dict']['line']['params']
 
-                    keys_to_keep = [
-                        'x',
-                        'y',
-                        'z',
-                        'contour_x_size',
-                        'contour_x_start',
-                        'contour_x_stop',
-                        'contour_y_size',
-                        'contour_y_start',
-                        'contour_y_stop',
-                        'contour_z_size',
-                        'contour_z_start',
-                        'contour_z_stop'
-                        ]
-                    for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
-                        keys_to_delete = set(vol_surface['data_dict'][surface_type]['params'].keys()) - set(keys_to_keep)
-                        for param_key in keys_to_delete:
-                            del vol_surface['data_dict'][surface_type]['params'][param_key]        
+                keys_to_keep = [
+                    'x',
+                    'y',
+                    'z',
+                    'contour_x_size',
+                    'contour_x_start',
+                    'contour_x_stop',
+                    'contour_y_size',
+                    'contour_y_start',
+                    'contour_y_stop',
+                    'contour_z_size',
+                    'contour_z_start',
+                    'contour_z_stop'
+                    ]
+                for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
+                    keys_to_delete = set(
+                        vol_surface['data_dict'][surface_type][
+                            'params'].keys()) - set(keys_to_keep)
+                    for param_key in keys_to_delete:
+                        del vol_surface['data_dict'][surface_type]['params'][param_key]
 
             jsonstring = json.dumps(vol_surface, cls=NanConverter)
             voldata = json.loads(jsonstring)
@@ -168,7 +173,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
             if self.params['save']:
                 self.save_vol_data(filename)
 
-        except Exception as e:
+        except (ValueError, ZeroDivisionError, OverflowError,
+                RuntimeWarning) as e:
             print(f"Error processing ticker {self.params['ticker']}: {str(e)}")
 
 
@@ -179,10 +185,10 @@ class VolBatch(VolBatchData, VolBatchTransform):
         if filename is None:
             filename = self.params['ticker'] + '.json'
 
-        assert filename is not None  # Type guard for static type checkers    
+        assert filename is not None  # Type guard for static type checkers
 
         if hasattr(self, 'voldata'):
-            with open(filename, "w") as fp:
+            with open(filename, "w", encoding="utf-8") as fp:
                 json.dump(self.voldata, fp, cls=NanConverter)
             print("Data saved as", filename)
         else:

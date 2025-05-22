@@ -7,7 +7,7 @@ import json
 import random
 from io import StringIO
 from time import sleep
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, Union
 
 import pandas as pd
 from volvisdata.volatility import Volatility
@@ -108,20 +108,17 @@ class VolBatchData:
         Fetch dividend yields for all tickers in tickerMap.
         Returns modified params dictionary with div_map added.
         """
-        params_copy = params.copy()  # Create a copy to avoid modifying the original
         div_map: Dict[str, float] = {}
 
-        for key in params_copy['tickerMap'].keys():
+        for key in params['tickerMap'].keys():
             random.seed(dt.datetime.now().timestamp())
-            user_agent = random.choice(params_copy['USER_AGENTS'])
-            params_copy['request_headers']["User-Agent"] = user_agent
+            user_agent = random.choice(params['USER_AGENTS'])
+            params['request_headers']["User-Agent"] = user_agent
             urlopener = UrlOpener()
-            key_lower = key.lower()
             try:
-                url = 'https://stockanalysis.com/stocks/'+key_lower+'/'
-                response = urlopener.open(url, params_copy['request_headers'])
-                html_doc = response.text
-                data_list = pd.read_html(StringIO(html_doc))
+                url = 'https://stockanalysis.com/stocks/'+key.lower()+'/'
+                response = urlopener.open(url, params['request_headers'])
+                data_list = pd.read_html(StringIO(response.text))
                 div_str = data_list[0].iloc[7, 1]
                 print(div_str)
                 try:
@@ -129,27 +126,30 @@ class VolBatchData:
                     div_yield = divo[1:-2]
                     div_map[key] = float(div_yield) / 100
                     print("Stock div yield for ticker: ", key)
-                except:
+                except (ValueError, ZeroDivisionError, OverflowError,
+                    RuntimeWarning):
                     print("No stock div yield for ticker: ", key)
                     div_map[key] = 0.0
 
-            except:
+            except (ValueError, ZeroDivisionError, OverflowError,
+                    RuntimeWarning):
                 try:
-                    url = 'https://stockanalysis.com/etf/'+key_lower+'/'
-                    response = urlopener.open(url, params_copy['request_headers'])
-                    html_doc = response.text
-                    data_list = pd.read_html(StringIO(html_doc))
+                    url = 'https://stockanalysis.com/etf/'+key.lower()+'/'
+                    response = urlopener.open(url, params['request_headers'])
+                    data_list = pd.read_html(StringIO(response.text))
                     div_str = data_list[0].iloc[5, 1]
                     print(div_str)
                     try:
                         div_yield = div_str[0:-2]  # type: ignore
                         div_map[key] = float(div_yield) / 100
                         print("Etf div yield for ticker: ", key)
-                    except:
+                    except (ValueError, ZeroDivisionError, OverflowError,
+                    RuntimeWarning):
                         print("No etf div yield for ticker: ", key)
                         div_map[key] = 0.0
 
-                except:
+                except (ValueError, ZeroDivisionError, OverflowError,
+                    RuntimeWarning):
                     print("problem with: ", key)
                     div_map[key] = 0.0
 
@@ -157,26 +157,27 @@ class VolBatchData:
 
         div_map['SPX'] = div_map['SPY']
 
-        for key in params_copy['tickerMap'].keys():
-            params_copy['tickerMap'][key]['divYield'] = div_map[key]
+        for key in params['tickerMap'].keys():
+            params['tickerMap'][key]['divYield'] = div_map[key]
 
-        jsonstring = json.dumps(params_copy['tickerMap'], cls=NanConverter)
+        jsonstring = json.dumps(params['tickerMap'], cls=NanConverter)
         tickerdata = json.loads(jsonstring)
         filename = 'tickerMap.json'
 
-        if params_copy['save']:
-            with open(filename, "w") as fp:
+        if params['save']:
+            with open(filename, "w", encoding="utf-8") as fp:
                 json.dump(tickerdata, fp, cls=NanConverter)
 
-        params_copy['div_map'] = div_map
-        return params_copy
+        params['div_map'] = div_map
+        return params
+
 
     @staticmethod
     def load_div_yields(filename: str = 'tickerMap.json') -> Dict[str, float]:
         """
         Load dividend yields from a previously saved tickerMap JSON file.
         """
-        with open(filename) as f:
+        with open(filename, encoding="utf-8") as f:
             ticker_map = json.load(f)
 
         div_map: Dict[str, float] = {}
@@ -184,4 +185,3 @@ class VolBatchData:
             div_map[key] = value['divYield']
 
         return div_map
-    
