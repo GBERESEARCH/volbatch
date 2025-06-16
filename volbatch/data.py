@@ -28,7 +28,8 @@ class VolBatchData:
             start_date: str,
             discount_type: str,
             skew_tenors: int,
-            pair_selection_method: str
+            pair_selection_method: str,
+            max_trade_age_minutes: int
         ) -> Optional[Dict[str, Any]]:
         """
         Get volatility data for a ticker.
@@ -40,7 +41,8 @@ class VolBatchData:
             'filename': None,
             'underlying_price': None,
             'reference_date': start_date,
-            'pair_selection_method': pair_selection_method
+            'pair_selection_method': pair_selection_method,
+            'max_trade_age_minutes': max_trade_age_minutes
         }
         vol = VolDiscount(**args)
         discount_df = vol.get_data_with_rates()

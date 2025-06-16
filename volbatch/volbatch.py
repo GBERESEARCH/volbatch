@@ -54,7 +54,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                         start_date=self.params['start_date'],
                         discount_type=self.params['discount_type'],
                         skew_tenors=self.params['skew_tenors'],
-                        pair_selection_method=self.params['pair_selection_method']
+                        pair_selection_method=self.params['pair_selection_method'],
+                        max_trade_age_minutes = self.params['max_trade_age_minutes']
                     )
 
                 if vol_surface is None:
@@ -131,7 +132,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                     start_date=self.params['start_date'],
                     discount_type=self.params['discount_type'],
                     skew_tenors=self.params['skew_tenors'],
-                    pair_selection_method=self.params['pair_selection_method']
+                    pair_selection_method=self.params['pair_selection_method'],
+                    max_trade_age_minutes = self.params['max_trade_age_minutes']
                 )
 
             if vol_surface is None:

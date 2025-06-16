@@ -217,7 +217,11 @@ def timeout(func: Callable[..., R]) -> Callable[..., Optional[R]]:
                 completed[0] = True
             except (ValueError, ZeroDivisionError, OverflowError,
                 TypeError, RuntimeWarning) as e:
-                exception[0] = e
+                # For data-related errors, return None instead of raising
+                # This lets the batch continue and skip problematic tickers
+                print(f"Warning: {func.__name__} failed for insufficient/invalid data: {e}")
+                result[0] = None
+                completed[0] = True
 
         thread = threading.Thread(target=worker)
         thread.daemon = True
