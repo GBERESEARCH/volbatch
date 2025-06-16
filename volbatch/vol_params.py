@@ -67,6 +67,12 @@ vol_params = {
             'longName': 'Broadcom Inc.',
             'divYield':	0.0139
             },
+        'B':
+            {
+            'ticker': 'B',
+            'longName': 'Barrick Mining Corporation',
+            'divYield':	0.0226
+            },
         'BA':
             {
             'ticker': 'BA',
@@ -252,13 +258,7 @@ vol_params = {
             'ticker': 'GME',
             'longName': 'GameStop Corp.',
             'divYield':	0.0
-            },
-        'GOLD':
-            {
-            'ticker': 'GOLD',
-            'longName': 'Barrick Gold Corporation',
-            'divYield':	0.0226
-            },
+            },        
         'GOOGL':
             {
             'ticker': 'GOOGL',
@@ -366,6 +366,12 @@ vol_params = {
             'ticker': 'META',
             'longName': 'Meta Platforms, Inc.',
             'divYield':	0.0032
+            },
+        'MO':
+            {
+            'ticker': 'MO',
+            'longName': 'Altria Group, Inc.',
+            'divYield':	0.0682
             },
         'MRNA':
             {
