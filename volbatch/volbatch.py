@@ -8,6 +8,7 @@ Results can be saved as structured JSON files for further analysis.
 """
 
 import json
+from pathlib import Path
 import random
 from time import sleep
 from typing import Dict, Any, Optional
@@ -91,7 +92,10 @@ class VolBatch(VolBatchData, VolBatchTransform):
 
                 jsonstring = json.dumps(vol_surface, cls=NanConverter)
                 voldata = json.loads(jsonstring)
-                filename = ticker + '.json'
+
+                file = ticker + '.json'
+                folder_path = self.params.get('folder_path')
+                filename = folder_path / file if folder_path else file
 
                 if self.params['save']:
                     with open(filename, "w", encoding="utf-8") as fp:
@@ -171,7 +175,10 @@ class VolBatch(VolBatchData, VolBatchTransform):
             voldata = json.loads(jsonstring)
             self.voldata = voldata
 
-            filename = clean_ticker + '.json'
+            file = clean_ticker + '.json'
+            folder_path = self.params.get('folder_path')
+            filename = folder_path / file if folder_path else file
+
             if self.params['save']:
                 self.save_vol_data(filename)
 
@@ -185,7 +192,9 @@ class VolBatch(VolBatchData, VolBatchTransform):
         Save volatility data to a JSON file.
         """
         if filename is None:
-            filename = self.params['ticker'] + '.json'
+            file = self.params['ticker'] + '.json'
+            folder_path = self.params.get('folder_path')
+            filename = folder_path / file if folder_path else file
 
         assert filename is not None  # Type guard for static type checkers
 
