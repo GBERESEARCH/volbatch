@@ -427,6 +427,12 @@ vol_params = {
             'longName': 'NVIDIA Corporation',
             'divYield':	0.0003
             },
+        'OPEN':
+            {
+            'ticker': 'OPEN',
+            'longName': 'Opendoor Teechnologies Inc.',
+            'divYield':	0.0
+            },
         'ORCL':
             {
             'ticker': 'ORCL',
@@ -449,6 +455,12 @@ vol_params = {
             {
             'ticker': 'PLTR',
             'longName': 'Palantir Technologies Inc.',
+            'divYield':	0.0
+            },
+        'PLUG':
+            {
+            'ticker': 'PLUG',
+            'longName': 'Plug Power Inc.',
             'divYield':	0.0
             },
         'PYPL':
