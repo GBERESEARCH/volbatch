@@ -3,9 +3,11 @@ vol_params = {
     'skew_tenors': 24,
     'save': False,
     'interest_rate': 0.0454,
-    'timeout_seconds': 120,
+    'timeout_seconds': 240,
     'discount_type': 'smooth',
     'trim_dict': True,
+    'raw_data': False,
+    'save_raw_data':True,
     'tickerMap':{
         'AAPL':
             {
