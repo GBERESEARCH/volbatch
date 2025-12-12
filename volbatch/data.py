@@ -8,6 +8,7 @@ import random
 from io import StringIO
 from time import sleep
 from typing import Dict, Any, Optional, Union
+from pathlib import Path
 
 import pandas as pd
 from volvisdata.volatility import Volatility
@@ -23,18 +24,18 @@ class VolBatchData:
     """
     @staticmethod
     @timeout
-    def get_vol_data(
+    def get_raw_data(
             ticker: str,
             start_date: str,
-            discount_type: str,
-            skew_tenors: int,
             pair_selection_method: str,
-            max_trade_age_minutes: int
-        ) -> Optional[Dict[str, Any]]:
+            max_trade_age_minutes: int,
+            date_folder_path: Path,
+            save_raw_data: bool
+        ) -> Optional[pd.DataFrame]:
         """
-        Get volatility data for a ticker.
+        Get raw volatility data for a ticker.
         """
-        print(f"Starting volatility calculation for {ticker}")
+        print(f"Starting data extraction for {ticker}")
 
         args = {
             'ticker': ticker,
@@ -46,6 +47,55 @@ class VolBatchData:
         }
         vol = VolDiscount(**args)
         discount_df = vol.get_data_with_rates()
+
+        clean_ticker = args['ticker'].replace('^', '')
+        file = clean_ticker+'.pickle'
+        
+        if save_raw_data:    
+            folder_path = date_folder_path / "raw_data" 
+            folder_path.mkdir(parents=True, exist_ok=True)
+            filename = folder_path / file
+            discount_df.to_pickle(filename)
+
+        return discount_df
+
+
+    @classmethod
+    @timeout
+    def get_vol_data(
+            cls,
+            ticker: str,
+            start_date: str,
+            discount_type: str,
+            skew_tenors: int,
+            pair_selection_method: str,
+            max_trade_age_minutes: int,
+            date_folder_path: Path,
+            save_raw_data: bool
+        ) -> Optional[Dict[str, Any]]:
+        """
+        Get volatility data for a ticker.
+        """
+        print(f"Starting volatility calculation for {ticker}")
+
+        # args = {
+        #     'ticker': ticker,
+        #     'filename': None,
+        #     'underlying_price': None,
+        #     'reference_date': start_date,
+        #     'pair_selection_method': pair_selection_method,
+        #     'max_trade_age_minutes': max_trade_age_minutes
+        # }
+        # vol = VolDiscount(**args)
+        # discount_df = vol.get_data_with_rates()
+        discount_df = cls.get_raw_data(
+            ticker=ticker,
+            start_date=start_date,
+            pair_selection_method=pair_selection_method,
+            max_trade_age_minutes=max_trade_age_minutes,
+            date_folder_path=date_folder_path,
+            save_raw_data=save_raw_data
+            )
 
         inputs = {
             'ticker': ticker,

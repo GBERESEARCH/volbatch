@@ -18,7 +18,6 @@ from volbatch.transform import VolBatchTransform
 from volbatch.utils import NanConverter
 from volbatch.vol_params import vol_params
 
-
 class VolBatch(VolBatchData, VolBatchTransform):
     """
     Batch processor for volatility surface calculations across multiple securities.
@@ -36,76 +35,97 @@ class VolBatch(VolBatchData, VolBatchTransform):
         """
         Process a batch of tickers and save the results to JSON files.
         """
+        self.failed_tickers = []
         for ticker, ticker_dict in self.params['tickerMap'].items():
             print(f"Processing ticker: {ticker}")
-            try:
-                if self.params['divs']:
-                    # Use the static method but store the result back to self.params
-                    self.params = self.get_div_yields(self.params)
-                    vol_surface = self.get_vol_data_with_divs(
-                        ticker=ticker_dict['ticker'],
-                        div_yield=self.params['div_map'][ticker],
-                        interest_rate=self.params['interest_rate'],
-                        start_date=self.params['start_date'],
-                        skew_tenors=self.params['skew_tenors']
-                    )
-                else:
-                    vol_surface = self.get_vol_data(
+            if self.params['raw_data']:
+                try:
+                    _ = self.get_raw_data(
                         ticker=ticker_dict['ticker'],
                         start_date=self.params['start_date'],
-                        discount_type=self.params['discount_type'],
-                        skew_tenors=self.params['skew_tenors'],
                         pair_selection_method=self.params['pair_selection_method'],
-                        max_trade_age_minutes = self.params['max_trade_age_minutes']
-                    )
+                        max_trade_age_minutes = self.params['max_trade_age_minutes'],
+                        date_folder_path = self.params['folder_path'],
+                        save_raw_data = self.params['save_raw_data']
+                        )
+                    
+                except (ValueError, ZeroDivisionError, OverflowError,
+                        RuntimeWarning) as e:
+                    print(f"Error processing ticker {ticker}: {str(e)}")
+                    self.failed_tickers.append(ticker)
 
-                if vol_surface is None:
-                    print(f"Processing for {ticker} timed out or failed, skipping to next ticker")
-                    continue
+            else:
+                try:
+                    if self.params['divs']:
+                        # Use the static method but store the result back to self.params
+                        self.params = self.get_div_yields(self.params)
+                        vol_surface = self.get_vol_data_with_divs(
+                            ticker=ticker_dict['ticker'],
+                            div_yield=self.params['div_map'][ticker],
+                            interest_rate=self.params['interest_rate'],
+                            start_date=self.params['start_date'],
+                            skew_tenors=self.params['skew_tenors']
+                        )
+                    else:
+                        vol_surface = self.get_vol_data(
+                            ticker=ticker_dict['ticker'],
+                            start_date=self.params['start_date'],
+                            discount_type=self.params['discount_type'],
+                            skew_tenors=self.params['skew_tenors'],
+                            pair_selection_method=self.params['pair_selection_method'],
+                            max_trade_age_minutes = self.params['max_trade_age_minutes'],
+                            date_folder_path = self.params['folder_path'],
+                            save_raw_data = self.params['save_raw_data']
+                        )
 
-                if self.params['trim_dict']:
-                    for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
-                        del vol_surface['data_dict'][surface_type]
+                    if vol_surface is None:
+                        print(f"Processing for {ticker} timed out or failed, skipping to next ticker")
+                        continue
 
-                    del vol_surface['data_dict']['line']['params']
+                    if self.params['trim_dict']:
+                        for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
+                            del vol_surface['data_dict'][surface_type]
 
-                    keys_to_keep = [
-                        'x',
-                        'y',
-                        'z',
-                        'contour_x_size',
-                        'contour_x_start',
-                        'contour_x_stop',
-                        'contour_y_size',
-                        'contour_y_start',
-                        'contour_y_stop',
-                        'contour_z_size',
-                        'contour_z_start',
-                        'contour_z_stop'
-                        ]
-                    for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
-                        keys_to_delete = set(
-                            vol_surface['data_dict'][surface_type][
-                                'params'].keys()) - set(keys_to_keep)
-                        for param_key in keys_to_delete:
-                            del vol_surface['data_dict'][surface_type]['params'][param_key]
+                        del vol_surface['data_dict']['line']['params']
 
-                jsonstring = json.dumps(vol_surface, cls=NanConverter)
-                voldata = json.loads(jsonstring)
+                        keys_to_keep = [
+                            'x',
+                            'y',
+                            'z',
+                            'contour_x_size',
+                            'contour_x_start',
+                            'contour_x_stop',
+                            'contour_y_size',
+                            'contour_y_start',
+                            'contour_y_stop',
+                            'contour_z_size',
+                            'contour_z_start',
+                            'contour_z_stop'
+                            ]
+                        for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
+                            keys_to_delete = set(
+                                vol_surface['data_dict'][surface_type][
+                                    'params'].keys()) - set(keys_to_keep)
+                            for param_key in keys_to_delete:
+                                del vol_surface['data_dict'][surface_type]['params'][param_key]
 
-                file = ticker + '.json'
-                folder_path = self.params.get('folder_path')
-                filename = folder_path / file if folder_path else file
+                    jsonstring = json.dumps(vol_surface, cls=NanConverter)
+                    voldata = json.loads(jsonstring)
 
-                if self.params['save']:
-                    with open(filename, "w", encoding="utf-8") as fp:
-                        json.dump(voldata, fp, cls=NanConverter)
+                    file = ticker + '.json'
+                    folder_path = self.params.get('folder_path')
+                    filename = folder_path / file if folder_path else file
 
-                print(f"Successfully processed ticker: {ticker}")
+                    if self.params['save']:
+                        with open(filename, "w", encoding="utf-8") as fp:
+                            json.dump(voldata, fp, cls=NanConverter)
 
-            except (ValueError, ZeroDivisionError, OverflowError,
-                    RuntimeWarning) as e:
-                print(f"Error processing ticker {ticker}: {str(e)}")
+                    print(f"Successfully processed ticker: {ticker}")
+
+                except (ValueError, ZeroDivisionError, OverflowError,
+                        RuntimeWarning) as e:
+                    print(f"Error processing ticker {ticker}: {str(e)}")
+                    self.failed_tickers.append(ticker)
 
             # Random pause between tickers to avoid rate limiting
             sleep_time = random.randint(6, 15)
