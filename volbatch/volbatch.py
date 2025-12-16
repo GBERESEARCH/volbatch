@@ -157,7 +157,9 @@ class VolBatch(VolBatchData, VolBatchTransform):
                     discount_type=self.params['discount_type'],
                     skew_tenors=self.params['skew_tenors'],
                     pair_selection_method=self.params['pair_selection_method'],
-                    max_trade_age_minutes = self.params['max_trade_age_minutes']
+                    max_trade_age_minutes=self.params['max_trade_age_minutes'],
+                    date_folder_path = self.params['folder_path'],
+                    save_raw_data = self.params['save_raw_data']
                 )
 
             if vol_surface is None:
