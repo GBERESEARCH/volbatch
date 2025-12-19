@@ -7,7 +7,8 @@ vol_params = {
     'discount_type': 'smooth',
     'trim_dict': True,
     'raw_data': False,
-    'save_raw_data':True,
+    'save_raw_data': True,
+    'use_saved_data': False,
     'tickerMap':{
         'AAPL':
             {

@@ -75,7 +75,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                             pair_selection_method=self.params['pair_selection_method'],
                             max_trade_age_minutes = self.params['max_trade_age_minutes'],
                             date_folder_path = self.params['folder_path'],
-                            save_raw_data = self.params['save_raw_data']
+                            save_raw_data = self.params['save_raw_data'],
+                            use_saved_data = self.params['use_saved_data']
                         )
 
                     if vol_surface is None:
@@ -159,7 +160,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                     pair_selection_method=self.params['pair_selection_method'],
                     max_trade_age_minutes=self.params['max_trade_age_minutes'],
                     date_folder_path = self.params['folder_path'],
-                    save_raw_data = self.params['save_raw_data']
+                    save_raw_data = self.params['save_raw_data'],
+                    use_saved_data = self.params['use_saved_data']
                 )
 
             if vol_surface is None:

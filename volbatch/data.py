@@ -71,7 +71,8 @@ class VolBatchData:
             pair_selection_method: str,
             max_trade_age_minutes: int,
             date_folder_path: Path,
-            save_raw_data: bool
+            save_raw_data: bool,
+            use_saved_data: bool
         ) -> Optional[Dict[str, Any]]:
         """
         Get volatility data for a ticker.
@@ -88,7 +89,25 @@ class VolBatchData:
         # }
         # vol = VolDiscount(**args)
         # discount_df = vol.get_data_with_rates()
-        discount_df = cls.get_raw_data(
+        if use_saved_data:
+            try:
+                clean_ticker = ticker.replace('^', '')
+                file = clean_ticker+'.pickle'
+                
+                folder_path = date_folder_path / "raw_data" 
+                filename = folder_path / file
+                discount_df = pd.read_pickle(filename)
+            except:
+                discount_df = cls.get_raw_data(
+                    ticker=ticker,
+                    start_date=start_date,
+                    pair_selection_method=pair_selection_method,
+                    max_trade_age_minutes=max_trade_age_minutes,
+                    date_folder_path=date_folder_path,
+                    save_raw_data=save_raw_data
+                    )
+        else:
+            discount_df = cls.get_raw_data(
             ticker=ticker,
             start_date=start_date,
             pair_selection_method=pair_selection_method,
