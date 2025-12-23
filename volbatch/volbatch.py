@@ -84,8 +84,9 @@ class VolBatch(VolBatchData, VolBatchTransform):
                         continue
 
                     if self.params['trim_dict']:
-                        for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
-                            del vol_surface['data_dict'][surface_type]
+                        for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'ssvi', 'svijw', 'trisurf']:
+                            if surface_type in vol_surface['data_dict']:
+                                del vol_surface['data_dict'][surface_type]
 
                         del vol_surface['data_dict']['line']['params']
 
@@ -103,12 +104,13 @@ class VolBatch(VolBatchData, VolBatchTransform):
                             'contour_z_start',
                             'contour_z_stop'
                             ]
-                        for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
-                            keys_to_delete = set(
-                                vol_surface['data_dict'][surface_type][
-                                    'params'].keys()) - set(keys_to_keep)
-                            for param_key in keys_to_delete:
-                                del vol_surface['data_dict'][surface_type]['params'][param_key]
+                        for surface_type in ['int_svi', 'int_ssvi', 'int_svijw', 'int_mesh', 'int_spline']:
+                            if surface_type in vol_surface['data_dict']:
+                                keys_to_delete = set(
+                                    vol_surface['data_dict'][surface_type][
+                                        'params'].keys()) - set(keys_to_keep)
+                                for param_key in keys_to_delete:
+                                    del vol_surface['data_dict'][surface_type]['params'][param_key]
 
                     jsonstring = json.dumps(vol_surface, cls=NanConverter)
                     voldata = json.loads(jsonstring)
@@ -169,8 +171,9 @@ class VolBatch(VolBatchData, VolBatchTransform):
                 return
 
             if self.params['trim_dict']:
-                for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'trisurf']:
-                    del vol_surface['data_dict'][surface_type]
+                for surface_type in ['mesh', 'scatter', 'spline', 'svi', 'ssvi', 'svijw', 'trisurf']:
+                    if surface_type in vol_surface['data_dict']:
+                        del vol_surface['data_dict'][surface_type]
 
                 del vol_surface['data_dict']['line']['params']
 
@@ -188,12 +191,13 @@ class VolBatch(VolBatchData, VolBatchTransform):
                     'contour_z_start',
                     'contour_z_stop'
                     ]
-                for surface_type in ['int_svi', 'int_mesh', 'int_spline']:
-                    keys_to_delete = set(
-                        vol_surface['data_dict'][surface_type][
-                            'params'].keys()) - set(keys_to_keep)
-                    for param_key in keys_to_delete:
-                        del vol_surface['data_dict'][surface_type]['params'][param_key]
+                for surface_type in ['int_svi', 'int_ssvi', 'int_svijw', 'int_mesh', 'int_spline']:
+                    if surface_type in vol_surface['data_dict']:
+                        keys_to_delete = set(
+                            vol_surface['data_dict'][surface_type][
+                                'params'].keys()) - set(keys_to_keep)
+                        for param_key in keys_to_delete:
+                            del vol_surface['data_dict'][surface_type]['params'][param_key]
 
             jsonstring = json.dumps(vol_surface, cls=NanConverter)
             voldata = json.loads(jsonstring)
