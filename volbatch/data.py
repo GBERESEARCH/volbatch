@@ -11,6 +11,8 @@ from typing import Dict, Any, Optional, Union
 from pathlib import Path
 
 import pandas as pd
+from scipy.interpolate import interp1d
+
 from volvisdata.volatility import Volatility
 from voldiscount.voldiscount import VolDiscount
 
@@ -30,7 +32,8 @@ class VolBatchData:
             pair_selection_method: str,
             max_trade_age_minutes: int,
             date_folder_path: Path,
-            save_raw_data: bool
+            save_raw_data: bool,
+            yield_curve: interp1d
         ) -> Optional[pd.DataFrame]:
         """
         Get raw volatility data for a ticker.
@@ -43,7 +46,8 @@ class VolBatchData:
             'underlying_price': None,
             'reference_date': start_date,
             'pair_selection_method': pair_selection_method,
-            'max_trade_age_minutes': max_trade_age_minutes
+            'max_trade_age_minutes': max_trade_age_minutes,
+            'yield_curve': yield_curve
         }
         vol = VolDiscount(**args)
         discount_df = vol.get_data_with_rates()
@@ -72,7 +76,8 @@ class VolBatchData:
             max_trade_age_minutes: int,
             date_folder_path: Path,
             save_raw_data: bool,
-            use_saved_data: bool
+            use_saved_data: bool,
+            yield_curve: interp1d
         ) -> Optional[Dict[str, Any]]:
         """
         Get volatility data for a ticker.
@@ -104,7 +109,8 @@ class VolBatchData:
                     pair_selection_method=pair_selection_method,
                     max_trade_age_minutes=max_trade_age_minutes,
                     date_folder_path=date_folder_path,
-                    save_raw_data=save_raw_data
+                    save_raw_data=save_raw_data,
+                    yield_curve=yield_curve
                     )
         else:
             discount_df = cls.get_raw_data(
@@ -113,7 +119,8 @@ class VolBatchData:
             pair_selection_method=pair_selection_method,
             max_trade_age_minutes=max_trade_age_minutes,
             date_folder_path=date_folder_path,
-            save_raw_data=save_raw_data
+            save_raw_data=save_raw_data,
+            yield_curve=yield_curve
             )
 
         inputs = {
@@ -122,7 +129,8 @@ class VolBatchData:
             'monthlies': True,
             'start_date': start_date,
             'discount_type': discount_type,
-            'precomputed_data': discount_df
+            'precomputed_data': discount_df,
+            'yield_curve': yield_curve
             }
         imp = Volatility(**inputs)
 
@@ -145,7 +153,8 @@ class VolBatchData:
             div_yield: Union[float, str],
             interest_rate: float,
             start_date: str,
-            skew_tenors: int
+            skew_tenors: int,
+            yield_curve: interp1d
         ) -> Optional[Dict[str, Any]]:
         """
         Get volatility data for a ticker incorporating dividend yields.
@@ -158,6 +167,7 @@ class VolBatchData:
             'monthlies': True,
             'q': div_yield,
             'r': interest_rate,
+            'yield_curve': yield_curve
             }
 
         imp = Volatility(**inputs)
