@@ -17,6 +17,7 @@ from volbatch.data import VolBatchData
 from volbatch.transform import VolBatchTransform
 from volbatch.utils import NanConverter
 from volbatch.vol_params import vol_params
+from volvisdata.market_data_prep import DataPrep
 
 class VolBatch(VolBatchData, VolBatchTransform):
     """
@@ -28,6 +29,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
         """
         self.params: Dict[str, Any] = vol_params.copy()
         self.params.update(kwargs)
+        self.params['yield_curve'] = DataPrep.generate_yield_curve(
+            start_date=self.params['start_date'])
         self.voldata = {}
 
 
@@ -46,7 +49,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                         pair_selection_method=self.params['pair_selection_method'],
                         max_trade_age_minutes = self.params['max_trade_age_minutes'],
                         date_folder_path = self.params['folder_path'],
-                        save_raw_data = self.params['save_raw_data']
+                        save_raw_data = self.params['save_raw_data'],
+                        yield_curve = self.params['yield_curve']
                         )
                     
                 except (ValueError, ZeroDivisionError, OverflowError,
@@ -64,7 +68,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                             div_yield=self.params['div_map'][ticker],
                             interest_rate=self.params['interest_rate'],
                             start_date=self.params['start_date'],
-                            skew_tenors=self.params['skew_tenors']
+                            skew_tenors=self.params['skew_tenors'],
+                            yield_curve = self.params['yield_curve']
                         )
                     else:
                         vol_surface = self.get_vol_data(
@@ -76,7 +81,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                             max_trade_age_minutes = self.params['max_trade_age_minutes'],
                             date_folder_path = self.params['folder_path'],
                             save_raw_data = self.params['save_raw_data'],
-                            use_saved_data = self.params['use_saved_data']
+                            use_saved_data = self.params['use_saved_data'],
+                            yield_curve = self.params['yield_curve']
                         )
 
                     if vol_surface is None:
@@ -151,7 +157,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                     div_yield=self.params['div_map'][clean_ticker],
                     interest_rate=self.params['interest_rate'],
                     start_date=self.params['start_date'],
-                    skew_tenors=self.params['skew_tenors']
+                    skew_tenors=self.params['skew_tenors'],
+                    yield_curve = self.params['yield_curve']
                 )
             else:
                 vol_surface = self.get_vol_data(
@@ -163,7 +170,8 @@ class VolBatch(VolBatchData, VolBatchTransform):
                     max_trade_age_minutes=self.params['max_trade_age_minutes'],
                     date_folder_path = self.params['folder_path'],
                     save_raw_data = self.params['save_raw_data'],
-                    use_saved_data = self.params['use_saved_data']
+                    use_saved_data = self.params['use_saved_data'],
+                    yield_curve = self.params['yield_curve']
                 )
 
             if vol_surface is None:
