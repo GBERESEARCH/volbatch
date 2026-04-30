@@ -77,6 +77,7 @@ class VolBatchData:
             date_folder_path: Path,
             save_raw_data: bool,
             use_saved_data: bool,
+            method: str,
             yield_curve: interp1d
         ) -> Optional[Dict[str, Any]]:
         """
@@ -130,6 +131,7 @@ class VolBatchData:
             'start_date': start_date,
             'discount_type': discount_type,
             'precomputed_data': discount_df,
+            'method':method,
             'yield_curve': yield_curve
             }
         imp = Volatility(**inputs)
@@ -154,6 +156,7 @@ class VolBatchData:
             interest_rate: float,
             start_date: str,
             skew_tenors: int,
+            method: str,
             yield_curve: interp1d
         ) -> Optional[Dict[str, Any]]:
         """
@@ -167,6 +170,7 @@ class VolBatchData:
             'monthlies': True,
             'q': div_yield,
             'r': interest_rate,
+            'method':method,
             'yield_curve': yield_curve
             }
 

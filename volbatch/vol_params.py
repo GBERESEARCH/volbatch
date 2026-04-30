@@ -9,6 +9,7 @@ vol_params = {
     'raw_data': False,
     'save_raw_data': True,
     'use_saved_data': False,
+    'method': 'gauss',
     'tickerMap':{
         'AAPL':
             {
