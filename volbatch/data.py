@@ -132,7 +132,8 @@ class VolBatchData:
             'discount_type': discount_type,
             'precomputed_data': discount_df,
             'method':method,
-            'yield_curve': yield_curve
+            'yield_curve': yield_curve,
+            'batch_vol_clean': True
             }
         imp = Volatility(**inputs)
 
@@ -171,7 +172,8 @@ class VolBatchData:
             'q': div_yield,
             'r': interest_rate,
             'method':method,
-            'yield_curve': yield_curve
+            'yield_curve': yield_curve,
+            'batch_vol_clean': True
             }
 
         imp = Volatility(**inputs)

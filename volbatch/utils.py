@@ -238,7 +238,7 @@ def timeout(func: Callable[..., R]) -> Callable[..., Optional[R]]:
             raise RuntimeError(f"Unknown error in {func.__name__}")
 
         # If thread is still running after timeout
-        if not completed[0]:
+        if thread.is_alive():
             print(f"Function {func.__name__} timed out after {TIMEOUT_SECONDS} seconds")
             return None
 
